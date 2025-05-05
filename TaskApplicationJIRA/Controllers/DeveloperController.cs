@@ -1,77 +1,33 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TaskApplicationJIRA.Data;
-using TaskApplicationJIRA.Models.TaskAssignment;
-using TaskApplicationJIRA.Models.UserModel;
-using System.Linq;
-using System.Threading.Tasks;
+﻿// Controllers/DeveloperController.cs
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using TaskApplicationJIRA.Models.ViewModels;
+using TaskApplicationJIRA.Services.DeveloperServices;
 
 namespace TaskApplicationJIRA.Controllers
 {
     [Authorize(Roles = "Developer")]
     public class DeveloperController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IDeveloperService _developerService;
 
-        public DeveloperController(ApplicationDbContext context)
+        public DeveloperController(IDeveloperService developerService)
         {
-            _context = context;
+            _developerService = developerService;
         }
 
         public async Task<IActionResult> Index()
         {
-            // Get the logged-in user's email (or UserId)
             var currentUserEmail = User.FindFirstValue(ClaimTypes.Email);
-            var currentUser = _context.Users.FirstOrDefault(u => u.Email == currentUserEmail);
-
-            // Fetch all tasks assigned to the logged-in developer
-            var assignedTasks = await _context.TaskAssignments
-            .Where(ta => ta.AssignedToUserId == currentUser.UserId)
-            .Include(ta => ta.Task)
-            .ThenInclude(task => task.Category) // Include Category
-            .Include(ta => ta.Task)
-            .ThenInclude(task => task.Priority) // Include Priority
-            .ToListAsync();
-
-
-            var tasks = assignedTasks.Select(ta => new TaskAssignedDevView
-            {
-                TaskId = ta.Task.Id,
-                Title = ta.Task.Title,
-                Description = ta.Task.Description,
-                CategoryName = ta.Task.Category?.Name,
-                PriorityLevel = ta.Task.Priority?.Level,
-                Status = ta.Task.Status,
-                DueDate = ta.Task.DueDate,
-                ImageUrl = ta.Task.ImageUrl
-            }).ToList();
-
+            var tasks = await _developerService.GetAssignedTasksAsync(currentUserEmail);
             return View(tasks);
         }
 
         [HttpPost]
         public async Task<IActionResult> UpdateStatus(int taskId, string status)
         {
-            var taskAssignment = await _context.TaskAssignments
-                .Include(ta => ta.Task)
-                .FirstOrDefaultAsync(ta => ta.TaskId == taskId);
-
-            if (taskAssignment != null)
-            {
-                taskAssignment.Task.Status = status;
-
-                // Update modified date (optional)
-                taskAssignment.Task.UpdatedOn = DateTime.Now;
-
-                await _context.SaveChangesAsync();
-                return Json(new { success = true });
-            }
-
-            return Json(new { success = false });
+            var result = await _developerService.UpdateTaskStatusAsync(taskId, status);
+            return Json(new { success = result });
         }
-
     }
 }

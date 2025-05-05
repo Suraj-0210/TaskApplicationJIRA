@@ -28,34 +28,36 @@
                 <td>@task.PriorityLevel</td>
                 <td>
                     <!-- Dropdown to Change Task Status -->
-                    <select class="form-select" aria-label="Change Task Status" onchange="updateTaskStatus(@task.TaskId, this.value)">
-                        @if (task.Status == "Not Started")
-                        {
-                            <option value="Not Started" selected>Not Started</option>
-                        }
-                        else
-                        {
-                            <option value="Not Started">Not Started</option>
-                        }
-
-                        @if (task.Status == "In Progress")
-                        {
-                            <option value="In Progress" selected>In Progress</option>
-                        }
-                        else
-                        {
-                            <option value="In Progress">In Progress</option>
-                        }
-
+                    
                         @if (task.Status == "Completed")
                         {
-                            <option value="Completed" selected>Completed</option>
+                            <span class="badge bg-success">Completed</span>
                         }
                         else
                         {
-                            <option value="Completed">Completed</option>
+                            <select class="form-select" aria-label="Change Task Status" onchange="updateTaskStatus(@task.TaskId, this.value)">
+                                @if (task.Status == "Not Started")
+                                {
+                                    <option value="Not Started" selected>Not Started</option>
+                                }
+                                else
+                                {
+                                    <option value="Not Started">Not Started</option>
+                                }
+
+                                @if (task.Status == "In Progress")
+                                {
+                                    <option value="In Progress" selected>In Progress</option>
+                                }
+                                else
+                                {
+                                    <option value="In Progress">In Progress</option>
+                                }
+
+                                <option value="Completed">Completed</option>
+                            </select>
                         }
-                    </select>
+
                 </td>
 
                 <td>@task.DueDate?.ToString("yyyy-MM-dd")</td>

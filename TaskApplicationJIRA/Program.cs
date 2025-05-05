@@ -2,8 +2,11 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using TaskApplicationJIRA.Data;
 using TaskApplicationJIRA.Services;
+using TaskApplicationJIRA.Services.AccountServices;
 using TaskApplicationJIRA.Services.AdminServices;
+using TaskApplicationJIRA.Services.DeveloperServices;
 using TaskApplicationJIRA.Services.Interfaces;
+using TaskApplicationJIRA.Services.ScrumMaster;
 using TaskApplicationJIRA.Services.UserServices;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,8 +33,12 @@ builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
+builder.Services.AddScoped<IAccountService, AccountService>();
 
+builder.Services.AddScoped<IDeveloperService, DeveloperService>();
 
+builder.Services.AddScoped<IScrumMasterService, ScrumMasterService>();
+ 
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
